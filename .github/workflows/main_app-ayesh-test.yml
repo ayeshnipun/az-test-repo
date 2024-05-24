@@ -28,18 +28,20 @@ jobs:
         working-directory: ./server
 
       - name: Zip artifact for deployment
-        run: zip -r release.zip .
-        working-directory: ./server
+        run: |
+          cd server
+          zip -r ../release.zip .
+        shell: bash
       
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
           name: node-app-az
           # path: .
-          path: ./server/release.zip
+          path: release.zip
 
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: build
     environment:
       name: 'Production'
@@ -50,6 +52,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: node-app-az
+          path: .
       
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
@@ -57,5 +60,5 @@ jobs:
         with:
           app-name: 'app-ayesh-test'
           slot-name: 'Production'
-          package: .
+          package: server
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3A475E5C4916438388B99A8BB6E38070 }}
