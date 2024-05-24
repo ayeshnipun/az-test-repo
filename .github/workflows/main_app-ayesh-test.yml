@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: app-ayesh-test
+name: Build and deploy Node.js app to Azure Web App - WireworldMPA
 
 on:
   push:
@@ -32,12 +32,15 @@ jobs:
           cd server
           zip -r ../release.zip .
         shell: bash
-      
+      # - name: Zip artifact for deployment
+      #   run: | 
+      #     cd server
+      #     zip release.zip ./* -r
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
-          name: node-app-az
-          # path: .
+          name: node-app-mpa
           path: release.zip
 
   deploy:
@@ -51,17 +54,22 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
         with:
-          name: node-app-az
+          name: node-app-mpa
           path: .
 
+      - name: Verify artifact presence
+        run: ls -l release.zip
+        
+      # - name: Unzip artifact for deployment
+      #   run: unzip release.zip
       - name: Unzip artifact for deployment
         run: unzip release.zip -d server
-        
+      
       - name: 'Deploy to Azure Web App'
-        uses: azure/webapps-deploy@v2
         id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
         with:
-          app-name: 'app-ayesh-test'
+          app-name: 'WireworldMPA'
           slot-name: 'Production'
           package: server
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3A475E5C4916438388B99A8BB6E38070 }}
